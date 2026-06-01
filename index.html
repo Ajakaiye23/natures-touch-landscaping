@@ -543,13 +543,13 @@ footer{background:var(--dark);padding:2.2rem 3rem;display:flex;justify-content:s
   var heroVisible=true;if('IntersectionObserver' in window){new IntersectionObserver(function(e){heroVisible=e[0].isIntersecting},{threshold:0.01}).observe(canvas)}
   var LEAVES=22,leaves=[];
   var leafGeo=new THREE.PlaneGeometry(2.2,3.2,8,12);
-  var leafColors=[0x2C4A2E,0x3D6B40,0x7DAA6E,0xA8C99A,0x6B8E5A,0x4A7050,0x96B583];
+  var leafColors=[0x2C4A2E,0x3D6B40,0x7DAA6E,0xA8C99A,0x6B8E5A,0x4A7050,0x96B583,0xC28A3D,0xB5632A];
   for(var i=0;i<LEAVES;i++){
     var color=new THREE.Color(leafColors[i%leafColors.length]);
     var mat=new THREE.ShaderMaterial({
       uniforms:{uTime:{value:Math.random()*100},uColor:{value:color},uWind:{value:0.4+Math.random()*0.6}},
       vertexShader:'uniform float uTime;uniform float uWind;varying vec2 vUv;void main(){vUv=uv;vec3 pos=position;float sway=sin(uTime*2.0+pos.y*0.5)*0.15*uWind*(1.0-uv.y);pos.x+=sway;pos.z+=sin(uTime*1.4+pos.x*0.5)*0.08*uWind;pos.z+=(uv.y-0.5)*(uv.y-0.5)*0.6;gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);}',
-      fragmentShader:'uniform vec3 uColor;varying vec2 vUv;void main(){vec2 p=vUv*2.0-1.0;float leafDist=length(vec2(p.x*1.3,p.y*0.7));float taper=smoothstep(0.95,0.9,leafDist)*smoothstep(0.0,0.15,vUv.y)*smoothstep(0.0,0.15,1.0-vUv.y);if(taper<0.01)discard;float vein=smoothstep(0.05,0.0,abs(p.x))*0.4;vec3 col=mix(uColor,uColor*0.6,vein);col=mix(col,col*1.2,vUv.y);gl_FragColor=vec4(col,taper);}',
+      fragmentShader:'uniform vec3 uColor;varying vec2 vUv;void main(){vec2 p=vUv*2.0-1.0;float width=0.86*sin(vUv.y*3.14159);float body=smoothstep(width,width-0.05,abs(p.x));if(body<0.01)discard;float midrib=smoothstep(0.035,0.0,abs(p.x));float vx=abs(fract(vUv.y*8.0)-0.5);float side=smoothstep(0.05,0.0,abs(abs(p.x)-vx*0.85))*step(0.04,abs(p.x))*0.5;float veins=clamp(midrib*0.65+side*body,0.0,1.0);vec3 base=mix(uColor*0.7,uColor*1.28,vUv.y);vec3 col=mix(base,base*0.55,veins);col+=uColor*0.25*smoothstep(0.6,1.0,1.0-abs(p.x))*(1.0-veins);gl_FragColor=vec4(col,body);}',
       transparent:true,side:THREE.DoubleSide,depthWrite:false
     });
     var leaf=new THREE.Mesh(leafGeo,mat);
